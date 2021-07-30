@@ -46,12 +46,12 @@ func main() {
 	for cpu := 1; cpu <= numCPU; cpu++ {
 		work := workSize * uint64(cpu)
 		fmt.Printf("CPU: %v, Work area: %v\n", cpu, work)
-		go func(work uint64, cpu int) {
-			for x := work; work > 0; work-- {
+		go func(workSize uint64, work uint64, cpu int) {
+			for x := work; work > work-workSize; work-- {
 				collatz(x, x, 0)
 			}
 			fmt.Printf("\nvCPU %v IS FINISHED\n", cpu)
-		}(work, cpu)
+		}(workSize, work, cpu)
 	}
 	for {
 		//Wait forever
