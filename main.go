@@ -8,8 +8,9 @@ import (
 
 var MaxSteps uint64 = 0
 var MaxLock sync.Mutex
+var wg sync.WaitGroup
 
-const maxInt = 18446744073709551615 // 2^64-1
+const maxInt = 18446744073709551615
 
 func checkMaxSteps(cpu int, seed uint64, i uint64, steps uint64) {
 	MaxLock.Lock()
@@ -22,7 +23,7 @@ func checkMaxSteps(cpu int, seed uint64, i uint64, steps uint64) {
 
 func collatz(cpu int, seed uint64, i uint64, steps uint64) {
 
-	if steps%1000000 == 0 {
+	if steps%10000 == 0 {
 		checkMaxSteps(cpu, seed, i, steps)
 	}
 
@@ -39,6 +40,7 @@ func collatz(cpu int, seed uint64, i uint64, steps uint64) {
 
 func main() {
 	numCPU := runtime.NumCPU()
+
 	fmt.Printf("Found %v vCPUs.\n", numCPU)
 	fmt.Println("Running: ")
 
@@ -48,15 +50,15 @@ func main() {
 		workStart := workSize * uint64(cpu-1)
 		workEnd := workStart + workSize - 1
 		fmt.Printf("CPU: %v, Work area: %v to %v\n", cpu, workStart, workEnd)
+		wg.Add(1)
 		go func(workStart uint64, workEnd uint64, cpu int) {
 			for x := workStart; x < workEnd; x++ {
 				collatz(cpu, x, x, 0)
 			}
 			fmt.Printf("\nvCPU %v IS FINISHED\n", cpu)
+			wg.Done()
 		}(workStart, workEnd, cpu)
 	}
-	for {
-		//Wait forever
-		//TODO: Wait for all vCPUs waitgroup to finish
-	}
+	wg.Wait()
+	fmt.Println("All work is done.")
 }
