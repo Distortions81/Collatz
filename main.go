@@ -26,7 +26,7 @@ func collatz(seed uint64, i uint64, steps uint64) {
 		checkMaxSteps(seed, i, steps)
 	}
 
-	if i == 1 {
+	if i <= 1 {
 		checkMaxSteps(seed, i, steps)
 	} else if i%2 == 0 {
 		i = i / 2
