@@ -22,11 +22,12 @@ func checkMaxSteps(seed uint64, i uint64, steps uint64) {
 
 func collatz(seed uint64, i uint64, steps uint64) {
 
-	if seed%1000000 == 0 {
+	if steps%1000000 == 0 {
 		checkMaxSteps(seed, i, steps)
-	} else if i == 1 {
+	}
+
+	if i == 1 {
 		checkMaxSteps(seed, i, steps)
-		//fmt.Printf("seed:%v steps:%v | ", seed, steps)
 	} else if i%2 == 0 {
 		i = i / 2
 		collatz(seed, i, steps+1)
@@ -44,16 +45,18 @@ func main() {
 	var workSize uint64 = maxInt / uint64(numCPU)
 
 	for cpu := 1; cpu <= numCPU; cpu++ {
-		work := workSize * uint64(cpu)
-		fmt.Printf("CPU: %v, Work area: %v\n", cpu, work)
-		go func(workSize uint64, work uint64, cpu int) {
-			for x := work; work > work-workSize; work-- {
+		workStart := workSize * uint64(cpu-1)
+		workEnd := workStart + workSize - 1
+		fmt.Printf("CPU: %v, Work area: %v to %v\n", cpu, workStart, workEnd)
+		go func(workStart uint64, workEnd uint64, cpu int) {
+			for x := workStart; x < workEnd; x++ {
 				collatz(x, x, 0)
 			}
 			fmt.Printf("\nvCPU %v IS FINISHED\n", cpu)
-		}(workSize, work, cpu)
+		}(workStart, workEnd, cpu)
 	}
 	for {
 		//Wait forever
+		//TODO: Wait for all vCPUs waitgroup to finish
 	}
 }
