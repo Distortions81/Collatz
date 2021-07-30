@@ -9,6 +9,8 @@ import (
 var MaxSteps uint64 = 0
 var MaxLock sync.Mutex
 
+const maxInt = 18446744073709551615 // 2^64-1
+
 func checkMaxSteps(seed uint64, i uint64, steps uint64) {
 	MaxLock.Lock()
 	if steps > MaxSteps {
@@ -39,8 +41,7 @@ func main() {
 	fmt.Printf("Found %v vCPUs.\n", numCPU)
 	fmt.Println("Running: ")
 
-	var max uint64 = 18446744073709551615 // 2^64-1
-	var workSize uint64 = max / uint64(numCPU)
+	var workSize uint64 = maxInt / uint64(numCPU)
 
 	for cpu := 1; cpu <= numCPU; cpu++ {
 		work := workSize * uint64(cpu)
