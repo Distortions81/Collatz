@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/remeh/sizedwaitgroup"
 )
 
 var MaxSteps uint64 = 0
 var MaxLock sync.Mutex
+
+var N uint64 = 0
 
 func checkMaxSteps(seed uint64, i uint64, steps uint64) {
 	MaxLock.Lock()
@@ -42,13 +45,22 @@ func main() {
 	swg := sizedwaitgroup.New(numCPU)
 	fmt.Println("Running: ")
 
-	var max uint64 = 18446744073709551615
-	for n := max; n > 0; n-- {
+	go func() {
+		for {
+			oldn := N
+			time.Sleep(15 * time.Second)
+			diff := N - oldn
+			fmt.Printf("cps: %v, ", diff/15.0)
+		}
+	}()
+
+	var max uint64 = 18446744073709551615 // 2^64-1
+	for N = max; N > 0; N-- {
 		swg.Add()
 		go func(n uint64) {
 			defer swg.Done()
-			collatz(n, n, 0)
-		}(n)
+			collatz(N, N, 0)
+		}(N)
 	}
 	swg.Wait()
 }
