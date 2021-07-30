@@ -49,7 +49,7 @@ func main() {
 		for {
 			oldn := N
 			time.Sleep(15 * time.Second)
-			diff := N - oldn
+			diff := oldn - N
 			fmt.Printf("cps: %v, ", diff/15.0)
 		}
 	}()
