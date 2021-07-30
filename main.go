@@ -4,15 +4,10 @@ import (
 	"fmt"
 	"runtime"
 	"sync"
-	"time"
-
-	"github.com/remeh/sizedwaitgroup"
 )
 
 var MaxSteps uint64 = 0
 var MaxLock sync.Mutex
-
-var N uint64 = 0
 
 func checkMaxSteps(seed uint64, i uint64, steps uint64) {
 	MaxLock.Lock()
@@ -42,25 +37,21 @@ func collatz(seed uint64, i uint64, steps uint64) {
 func main() {
 	numCPU := runtime.NumCPU()
 	fmt.Printf("Found %v vCPUs.\n", numCPU)
-	swg := sizedwaitgroup.New(numCPU)
 	fmt.Println("Running: ")
 
-	go func() {
-		for {
-			oldn := N
-			time.Sleep(15 * time.Second)
-			diff := oldn - N
-			fmt.Printf("cps: %v, ", diff/15.0)
-		}
-	}()
-
 	var max uint64 = 18446744073709551615 // 2^64-1
-	for N = max; N > 0; N-- {
-		swg.Add()
-		go func(n uint64) {
-			defer swg.Done()
-			collatz(N, N, 0)
-		}(N)
+	var workSize uint64 = max / uint64(numCPU)
+
+	for cpu := 1; cpu <= numCPU; cpu++ {
+		work := workSize * uint64(cpu)
+		fmt.Printf("CPU: %v, Work area: %v\n", cpu, work)
+		go func(work uint64) {
+			for x := work; work > 0; work-- {
+				collatz(x, x, 0)
+			}
+		}(work)
 	}
-	swg.Wait()
+	for {
+		//Wait forever
+	}
 }
