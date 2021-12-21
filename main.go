@@ -9,7 +9,7 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 )
 
-const startNumer = "1152921504606846976"
+const startNumer = "100300000000000000000"
 
 var MaxSteps *big.Int
 var MaxLock sync.Mutex
