@@ -12,6 +12,7 @@ import (
 // Delay record, 2426
 // http://www.ericr.nl/wondrous/delrecs.html
 const startNumber = "9781262575275081247"
+const progressInterval = 1000000
 
 var MaxSteps *big.Int
 var MaxLock sync.Mutex
@@ -27,6 +28,10 @@ func checkMaxSteps(seed *big.Int, steps *big.Int) {
 
 func collatz(seed *big.Int, i *big.Int, steps *big.Int) {
 
+	z := big.NewInt(0)
+	if z.Mod(i, big.NewInt(progressInterval)).Cmp(big.NewInt(0)) == 0 {
+		fmt.Printf(".")
+	}
 	if i.Cmp(big.NewInt(1)) < 1 {
 		checkMaxSteps(seed, steps)
 	} else if is_even(i) {
