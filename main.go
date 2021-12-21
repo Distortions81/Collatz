@@ -9,6 +9,8 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 )
 
+const startNumer = "1152921504606846976"
+
 var MaxSteps *big.Int
 var MaxLock sync.Mutex
 
@@ -42,8 +44,8 @@ func main() {
 	fmt.Printf("Found %v vCPUs.\n", numCPU)
 	swg := sizedwaitgroup.New(numCPU)
 
-	var i *big.Int
-	for i = big.NewInt(1); true; i.Add(i, big.NewInt(1)) {
+	i := big.NewInt(0)
+	for i.SetString(startNumer, 10); true; i.Add(i, big.NewInt(1)) {
 		swg.Add()
 		go func() {
 			newInt := big.NewInt(0)
