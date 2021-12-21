@@ -30,7 +30,7 @@ func collatz(seed *big.Int, i *big.Int, steps *big.Int) {
 
 	z := big.NewInt(0)
 	if z.Mod(i, big.NewInt(progressInterval)).Cmp(big.NewInt(0)) == 0 {
-		fmt.Printf(".")
+		fmt.Print(".")
 	}
 	if i.Cmp(big.NewInt(1)) < 1 {
 		checkMaxSteps(seed, steps)
