@@ -47,7 +47,9 @@ func main() {
 	swg := sizedwaitgroup.New(numCPU)
 
 	i := big.NewInt(0)
-	for i.SetString(startNumber, 10); true; i.Add(i, big.NewInt(1)) {
+	i.SetString(startNumber, 10)
+	i.Sub(i, big.NewInt(int64(numCPU)))
+	for ; true; i.Add(i, big.NewInt(1)) {
 		swg.Add()
 		go func() {
 			newInt := big.NewInt(0)
