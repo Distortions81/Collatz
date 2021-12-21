@@ -9,7 +9,9 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 )
 
-const startNumer = "100300000000000000000"
+// 2020 David Bařina record
+// http://www.ericr.nl/wondrous/index.html
+const startNumber = "295147905179352825856"
 
 var MaxSteps *big.Int
 var MaxLock sync.Mutex
@@ -45,7 +47,7 @@ func main() {
 	swg := sizedwaitgroup.New(numCPU)
 
 	i := big.NewInt(0)
-	for i.SetString(startNumer, 10); true; i.Add(i, big.NewInt(1)) {
+	for i.SetString(startNumber, 10); true; i.Add(i, big.NewInt(1)) {
 		swg.Add()
 		go func() {
 			newInt := big.NewInt(0)
