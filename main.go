@@ -9,9 +9,9 @@ import (
 	"github.com/remeh/sizedwaitgroup"
 )
 
-// 2020 David Bařina record
-// http://www.ericr.nl/wondrous/index.html
-const startNumber = "295147905179352825856"
+// Delay record, 2426
+// http://www.ericr.nl/wondrous/delrecs.html
+const startNumber = "9781262575275081247"
 
 var MaxSteps *big.Int
 var MaxLock sync.Mutex
