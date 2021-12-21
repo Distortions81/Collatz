@@ -12,7 +12,7 @@ import (
 // Delay record, 2426
 // http://www.ericr.nl/wondrous/delrecs.html
 const startNumber = "9781262575275081247"
-const progressInterval = 1000000
+const progressInterval = 1000000000
 
 var MaxSteps *big.Int
 var MaxLock sync.Mutex
