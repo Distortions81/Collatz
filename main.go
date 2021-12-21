@@ -12,11 +12,11 @@ import (
 var MaxSteps *big.Int
 var MaxLock sync.Mutex
 
-func checkMaxSteps(seed *big.Int, i *big.Int, steps *big.Int) {
+func checkMaxSteps(seed *big.Int, steps *big.Int) {
 	MaxLock.Lock()
 	if steps.Cmp(MaxSteps) > 0 {
 		MaxSteps.Set(steps)
-		fmt.Printf("NEW RECORD: SEED: %v, I: %v, STEPS: %v\n", seed, i, steps)
+		fmt.Printf("NEW RECORD: SEED: %v, STEPS: %v\n", seed, steps)
 	}
 	MaxLock.Unlock()
 }
@@ -24,7 +24,7 @@ func checkMaxSteps(seed *big.Int, i *big.Int, steps *big.Int) {
 func collatz(seed *big.Int, i *big.Int, steps *big.Int) {
 
 	if i.Cmp(big.NewInt(1)) < 1 {
-		checkMaxSteps(seed, i, steps)
+		checkMaxSteps(seed, steps)
 	} else if is_even(i) {
 		i.Div(i, big.NewInt(2))
 		collatz(seed, i, steps.Add(steps, big.NewInt(1)))
