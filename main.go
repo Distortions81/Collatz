@@ -2,63 +2,64 @@ package main
 
 import (
 	"fmt"
+	"math/big"
 	"runtime"
 	"sync"
+
+	"github.com/remeh/sizedwaitgroup"
 )
 
-var MaxSteps uint64 = 0
+var MaxSteps *big.Int
 var MaxLock sync.Mutex
-var wg sync.WaitGroup
 
-const maxInt = 18446744073709551615
-
-func checkMaxSteps(cpu int, seed uint64, i uint64, steps uint64) {
+func checkMaxSteps(seed *big.Int, i *big.Int, steps *big.Int) {
 	MaxLock.Lock()
-	if steps > MaxSteps {
-		MaxSteps = steps
-		fmt.Printf("RECORD (CPU %v): SEED: %v, I: %v, STEPS: %v\n", cpu, seed, i, steps)
+	if steps.Cmp(MaxSteps) > 0 {
+		MaxSteps.Set(steps)
+		fmt.Printf("NEW RECORD: SEED: %v, I: %v, STEPS: %v\n", seed, i, steps)
 	}
 	MaxLock.Unlock()
 }
 
-func collatz(cpu int, seed uint64, i uint64, steps uint64) {
+func collatz(seed *big.Int, i *big.Int, steps *big.Int) {
 
-	if steps%10000 == 0 {
-		checkMaxSteps(cpu, seed, i, steps)
-	}
-
-	if i <= 1 {
-		checkMaxSteps(cpu, seed, i, steps)
-	} else if i%2 == 0 {
-		i = i / 2
-		collatz(cpu, seed, i, steps+1)
+	if i.Cmp(big.NewInt(1)) < 1 {
+		checkMaxSteps(seed, i, steps)
+	} else if is_even(i) {
+		i.Div(i, big.NewInt(2))
+		collatz(seed, i, steps.Add(steps, big.NewInt(1)))
 	} else {
-		i = i*3 + 1
-		collatz(cpu, seed, i, steps+1)
+		i.Mul(i, big.NewInt(3))
+		i.Add(i, big.NewInt(1))
+		collatz(seed, i, steps.Add(steps, big.NewInt(1)))
 	}
 }
 
 func main() {
+	MaxSteps = big.NewInt(0)
 	numCPU := runtime.NumCPU()
 
 	fmt.Printf("Found %v vCPUs.\n", numCPU)
-	fmt.Println("Running: ")
+	swg := sizedwaitgroup.New(numCPU)
 
-	var workSize uint64 = maxInt / uint64(numCPU)
+	var i *big.Int
+	for i = big.NewInt(1); true; i.Add(i, big.NewInt(1)) {
+		swg.Add()
+		go func() {
+			newInt := big.NewInt(0)
+			newInt.Set(i)
+			newSeed := big.NewInt(0)
+			newSeed.Set(i)
 
-	for cpu := 1; cpu <= numCPU; cpu++ {
-		workStart := workSize * uint64(cpu-1)
-		workEnd := workStart + workSize - 1
-		fmt.Printf("CPU: %v, Work area: %v to %v\n", cpu, workStart, workEnd)
-		wg.Add(1)
-		go func(workStart uint64, workEnd uint64, cpu int) {
-			for x := workStart; x < workEnd; x++ {
-				collatz(cpu, x, x, 0)
-			}
-			fmt.Printf("\nvCPU %v IS FINISHED\n", cpu)
-			wg.Done()
-		}(workStart, workEnd, cpu)
+			collatz(newSeed, newInt, big.NewInt(0))
+			swg.Done()
+		}()
 	}
-	wg.Wait()
-	fmt.Println("All work is done.")
+	swg.Wait()
+}
+
+func is_even(i *big.Int) bool {
+	z := big.NewInt(0)
+	z.Mod(i, big.NewInt(2))
+	return z.Cmp(big.NewInt(0)) == 0
 }
